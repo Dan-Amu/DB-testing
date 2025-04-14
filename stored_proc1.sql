@@ -1,5 +1,5 @@
 DELIMITER //
- 
+DROP PROCEDURE IF EXISTS StressTest//
 CREATE PROCEDURE StressTest(
     IN num_operations INT,
     IN batch_size INT
