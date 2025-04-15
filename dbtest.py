@@ -101,7 +101,8 @@ for n in queries_ran:
 #print(debugInfo)
 print("\n\n")
 print(queries_ran)
-print(f"Total queries finished in {runTime/60} minutes:", total)
+runtimeMinutes = round(runTime/60, 1)
+print(f"Total queries finished in {runtimeMinutes} minutes:", total)
 
 #threadsStarted = 0
 #while True:
