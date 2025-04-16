@@ -3,10 +3,11 @@ import time
 from random import randint
 import threading
 import sys
+import os.path
 
 def connectToDatabase():
     databaseConnection = mysql.connector.connect(
-            host='192.168.0.10',
+            host='192.168.0.19',
             user='root',
             password='voxicon',
             database='Test'
@@ -15,7 +16,11 @@ def connectToDatabase():
 
 def threadPrint(threadID, texttoprint):
     print(f'Thread: {threadID} ', texttoprint)
-
+def pickRandQuery(tID, startTime, endTime):
+    choice = randint(1, 3)
+    match choice:
+        case 1:
+            readQuery
 def runQuery(tID, startTime, endTime):
     global queries_ran
     #global debugInfo
@@ -43,8 +48,8 @@ def runQuery(tID, startTime, endTime):
 #        query = "call StressTest('1000', '10')"
         seed = randint(1, 30000)
         start = seed*1
-        #query = f"select * from tpcc.customer where c_id between {start} and {start+10};"
-        query = f"select * from tpcc.customer where c_id like {start};"
+        query = f"select * from tpcc.customer where c_id between {start} and {start+20};"
+        #query = f"select * from tpcc.customer where c_id like {start};"
 
         dbcursor.execute(query)
 
@@ -102,8 +107,19 @@ for n in queries_ran:
 print("\n\n")
 print(queries_ran)
 runtimeMinutes = round(runTime/60, 1)
-print(f"Total queries finished in {runtimeMinutes} minutes:", total)
 
+# Write test results to file including date and time of test run
+current_time = time.localtime()
+# Format it as a date string
+now = time.strftime("%Y-%m-%d %H:%M:%S", current_time)
+resultsFile = open("./testresults.txt", "a")
+resultsFile.write("Test run at: "+now)
+resultsFile.write(f"Total queries finished in {runtimeMinutes} minutes: "+total)
+resultsFile.write(str(total/runtimeMinutes)+" Queries per minute.")
+resultsFile.close()
+
+print(f"Total queries finished in {runtimeMinutes} minutes:", total)
+print(total/runtimeMinutes, " Queries per minute.")
 #threadsStarted = 0
 #while True:
 #    if startTime > (time.time() + 60):

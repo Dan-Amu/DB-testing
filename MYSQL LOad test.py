@@ -9,10 +9,10 @@ batch_size = 100     # Number of records per batch
 
 # Database connection
 conn = mysql.connector.connect(
-    host='your_host',
-    user='your_user',
-    password='your_password',
-    database='your_database'
+    host='192.168.0.19',
+    user='root',
+    password='voxicon',
+    database='test123'
 )
 cursor = conn.cursor()
 
