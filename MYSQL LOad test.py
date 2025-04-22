@@ -4,7 +4,7 @@ import random
 from datetime import datetime, timedelta
 
 # Configuration
-num_iterations = 10  # Number of iterations
+num_iterations = 10000  # Number of iterations
 batch_size = 100     # Number of records per batch
 
 # Database connection
@@ -64,6 +64,7 @@ CREATE TABLE IF NOT EXISTS payments (
 conn.commit()
 
 for i in range(num_iterations):
+    print("Starting iteration: "+str(i))
     # Insert batch_size new customers
     customers = [
         (f'Customer_{uuid.uuid4()}', f'{uuid.uuid4()}@example.com')
@@ -110,31 +111,31 @@ for i in range(num_iterations):
     conn.commit()
 
     # Perform SELECT with JOINs
-    cursor.execute("""
-        SELECT o.order_id, c.name AS customer_name, p.name AS product_name, oi.quantity, pay.amount
-        FROM orders o
-        JOIN customers c ON o.customer_id = c.customer_id
-        JOIN order_items oi ON o.order_id = oi.order_id
-        JOIN products p ON oi.product_id = p.product_id
-        JOIN payments pay ON o.order_id = pay.order_id
-        ORDER BY o.order_date DESC
-        LIMIT 10
-    """)
-    results = cursor.fetchall()
-    for row in results:
-        print(row)
+   # cursor.execute("""
+   #     SELECT o.order_id, c.name AS customer_name, p.name AS product_name, oi.quantity, pay.amount
+   #     FROM orders o
+   #     JOIN customers c ON o.customer_id = c.customer_id
+   #     JOIN order_items oi ON o.order_id = oi.order_id
+   #     JOIN products p ON oi.product_id = p.product_id
+   #     JOIN payments pay ON o.order_id = pay.order_id
+   #     ORDER BY o.order_date DESC
+   #     LIMIT 10
+   # """)
+   # results = cursor.fetchall()
+   # for row in results:
+   #     print(row)
 
-    # Perform UPDATE on products
-    cursor.execute("SELECT product_id FROM products ORDER BY RAND() LIMIT %s", (batch_size,))
-    product_ids = [row[0] for row in cursor.fetchall()]
-    for pid in product_ids:
-        cursor.execute("UPDATE products SET stock = stock + 10 WHERE product_id = %s", (pid,))
-    conn.commit()
+   # # Perform UPDATE on products
+   # cursor.execute("SELECT product_id FROM products ORDER BY RAND() LIMIT %s", (batch_size,))
+   # product_ids = [row[0] for row in cursor.fetchall()]
+   # for pid in product_ids:
+   #     cursor.execute("UPDATE products SET stock = stock + 10 WHERE product_id = %s", (pid,))
+   # conn.commit()
 
-    # Perform DELETE on old payments
-    cutoff_date = datetime.now() - timedelta(days=1)
-    cursor.execute("DELETE FROM payments WHERE payment_date < %s", (cutoff_date,))
-    conn.commit()
+   # # Perform DELETE on old payments
+   # cutoff_date = datetime.now() - timedelta(days=1)
+   # cursor.execute("DELETE FROM payments WHERE payment_date < %s", (cutoff_date,))
+   # conn.commit()
 
 # Close connection
 cursor.close()
