@@ -1,19 +1,36 @@
 import mysql.connector
+import psycopg2
 import time
 from random import randint
 import threading
 import sys
 import os.path
 
-def connectToDatabase():
-    databaseConnection = mysql.connector.connect(
-            host='192.168.0.19',
-            user='root',
-            password='voxicon',
-            #database='Test'
-            database='test123'
-        )
-    return databaseConnection
+def connectToDatabase(server):
+    match server:
+    case "MySQL":
+        databaseConnection = mysql.connector.connect(
+                host='192.168.0.19',
+                user='root',
+                password='voxicon',
+                #database='Test'
+                database='test123'
+            )
+        return databaseConnection
+    case "PostgreSQL":
+        databaseConnection = psycopg2.connect(
+                host='192.168.0.10',
+                user='postgres',
+                password='qaz123',
+                dbname='dbtest1'
+            )
+        return databaseConnection
+    case "MongoDB":
+        print("Not yet Implemented")
+
+    case _:
+        print("Invalid server type")
+
 
 def threadPrint(threadID, texttoprint):
     print(f'Thread: {threadID} ', texttoprint)
@@ -28,7 +45,7 @@ def runQueryMySQL(tID, startTime, endTime):
 
     while True:
         
-        dibi = connectToDatabase()
+        dibi = connectToDatabase("MySQL")
         dbcursor = dibi.cursor()
 
        # seed = randint(1, 30000)
@@ -46,6 +63,54 @@ def runQueryMySQL(tID, startTime, endTime):
            JOIN products p ON oi.product_id = p.product_id
            JOIN payments pay ON o.order_id = pay.order_id
            ORDER BY RAND()
+           LIMIT 10
+        """
+
+        dbcursor.execute(query)
+
+        loops = loops+1
+        dibi.close()
+        curTime = time.time()
+        int_startTime = int(startTime)
+        int_curTime = int(curTime)
+        int_endTime = int(endTime)
+        threadPrint(tID, f"Time Elapsed: {int_curTime-int_startTime}s / {int_endTime-int_startTime}s")
+
+        if curTime > endTime:
+            threadPrint(tID, "Exited. Iterations:"+str(loops))
+            break
+        else:
+            queries_ran[tID] = queries_ran[tID] + 1
+            threadPrint(tID, "query counted. Current amount:"+str(queries_ran[tID]))
+
+def runQueryPostgreSQL(tID, startTime, endTime):
+    global queries_ran
+    #global debugInfo
+    debugInfo.append(["Thread:", tID])
+    loops = 0
+    queries_ran[tID] = 0
+
+
+    while True:
+        
+        dibi = connectToDatabase("PostgreSQL")
+        dbcursor = dibi.cursor()
+
+       # seed = randint(1, 30000)
+       # start = seed*1
+       # query = f"select * from tpcc.customer where c_id between {start} and {start+20};"
+
+       #query = f"select * from tpcc.customer where c_id like {start};"
+
+       # Perform SELECT with JOINs
+        query = """
+            SELECT o.order_id, c.name AS customer_name, p.name AS product_name, oi.quantity, pay.amount
+           FROM orders o
+           JOIN customers c ON o.customer_id = c.customer_id
+           JOIN order_items oi ON o.order_id = oi.order_id
+           JOIN products p ON oi.product_id = p.product_id
+           JOIN payments pay ON o.order_id = pay.order_id
+           ORDER BY RANDOM()
            LIMIT 10
         """
 
@@ -100,6 +165,10 @@ allthreads = []
 if dbType == "mysql":
     for num in range(0, threadcount-1):
         allthreads.append(threading.Thread(target=runQueryMySQL, args=(num, startTime, endTime)))
+elif dbType == "postgresql":
+    for num in range(0, threadcount-1):
+        allthreads.append(threading.Thread(target=runQueryPostgreSQL, args=(num, startTime, endTime)))
+else:
 else:
     print("Unsupported database type.")
     exit()
