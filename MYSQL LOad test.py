@@ -9,7 +9,7 @@ batch_size = 100     # Number of records per batch
 
 # Database connection
 conn = mysql.connector.connect(
-    host='192.168.0.19',
+    host='192.168.0.10',
     user='root',
     password='voxicon',
     database='test123'
@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS payments (
 )
 """)
 conn.commit()
-
+print("tables created")
 for i in range(num_iterations):
     print("Starting iteration: "+str(i))
     # Insert batch_size new customers
@@ -74,7 +74,6 @@ for i in range(num_iterations):
         "INSERT INTO customers (name, email) VALUES (%s, %s)", customers
     )
     conn.commit()
-
     # Insert batch_size new products
     products = [
         (f'Product_{uuid.uuid4()}', round(random.uniform(1, 100), 2), random.randint(1, 100))

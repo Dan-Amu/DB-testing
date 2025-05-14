@@ -10,8 +10,8 @@ batch_size = 1000     # Number of records per batch
 # Database connection
 conn = psycopg2.connect(
     host='192.168.0.10',
-    user='root',
-    password='voxicon',
+    user='postgres',
+    password='qaz123',
     dbname='dbtest1'
 )
 cursor = conn.cursor()
