@@ -4,8 +4,8 @@ import random
 from datetime import datetime, timedelta
 
 # Configuration
-num_iterations = 100000  # Number of iterations
-batch_size = 1000     # Number of records per batch
+num_iterations = 1000  # Number of iterations
+batch_size = 100     # Number of records per batch
 
 # Database connection
 conn = psycopg2.connect(
@@ -59,6 +59,7 @@ CREATE TABLE IF NOT EXISTS payments (
 """)
 conn.commit()
 print("Tables created")
+
 for i in range(num_iterations):
     # Insert batch_size new customers
     customers = [
