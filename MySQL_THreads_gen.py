@@ -6,9 +6,9 @@ import threading
 import time
 
 # Configuration
-num_iterations = 400  # Number of iterations
-batch_size = 600 # Number of records per batch
-threadcount = 50 # Number of simultaneous threads
+num_iterations = 67 # Number of iterations
+batch_size = 800 # Number of records per batch
+threadcount = 70 # Number of simultaneous threads
 
 def threadPrint(threadID, texttoprint):
     print(f'Thread: {threadID} ', texttoprint)
