@@ -8,31 +8,31 @@ import os.path
 
 def connectToDatabase(server):
     match server:
-    case "MySQL":
-        databaseConnection = mysql.connector.connect(
-                host='192.168.0.19',
-                user='root',
-                password='voxicon',
-                #database='Test'
-                database='test123'
-            )
-        return databaseConnection
+        case "MySQL":
+            databaseConnection = mysql.connector.connect(
+                    host='192.168.0.19',
+                    user='root',
+                    password='voxicon',
+                    port=3307,
+                    database='dbtest1'
+                )
+            return databaseConnection
 
-    case "PostgreSQL":
-        databaseConnection = psycopg2.connect(
-                host='192.168.0.19',
-                user='postgres',
-                password='qaz123',
-                dbname='dbtest1'
-            )
-        return databaseConnection
+        case "PostgreSQL":
+            databaseConnection = psycopg2.connect(
+                    host='192.168.0.19',
+                    user='postgres',
+                    password='qaz123',
+                    dbname='dbtest1'
+                )
+            return databaseConnection
 
-    case "MongoDB":
-        databaseConnection = pymongo.MongoClient('mongodb://192.168.0.19')
-        return databaseConnection
-        #print("Not yet Implemented")
-    case _:
-        print("Invalid server type")
+        case "MongoDB":
+            databaseConnection = pymongo.MongoClient('mongodb://192.168.0.19')
+            return databaseConnection
+            #print("Not yet Implemented")
+        case _:
+            print("Invalid server type")
 
 
 def threadPrint(threadID, texttoprint):
@@ -211,7 +211,6 @@ if dbType == "mysql":
 elif dbType == "postgresql":
     for num in range(0, threadcount-1):
         allthreads.append(threading.Thread(target=runQueryPostgreSQL, args=(num, startTime, endTime)))
-else:
 else:
     print("Unsupported database type.")
     exit()
