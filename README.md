@@ -15,4 +15,5 @@ pip install mariadb
 pip install mysql-connector
 pip install mysql-connector-python
 pip install psycopg2
+pip install pymongo
 ```
