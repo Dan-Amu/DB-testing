@@ -17,17 +17,20 @@ def connectToDatabase(server):
                 database='test123'
             )
         return databaseConnection
+
     case "PostgreSQL":
         databaseConnection = psycopg2.connect(
-                host='192.168.0.10',
+                host='192.168.0.19',
                 user='postgres',
                 password='qaz123',
                 dbname='dbtest1'
             )
         return databaseConnection
-    case "MongoDB":
-        print("Not yet Implemented")
 
+    case "MongoDB":
+        databaseConnection = pymongo.MongoClient('mongodb://192.168.0.19')
+        return databaseConnection
+        #print("Not yet Implemented")
     case _:
         print("Invalid server type")
 
@@ -111,6 +114,46 @@ def runQueryPostgreSQL(tID, startTime, endTime):
            JOIN products p ON oi.product_id = p.product_id
            JOIN payments pay ON o.order_id = pay.order_id
            ORDER BY RANDOM()
+           LIMIT 10
+        """
+
+        dbcursor.execute(query)
+
+        loops = loops+1
+        dibi.close()
+        curTime = time.time()
+        int_startTime = int(startTime)
+        int_curTime = int(curTime)
+        int_endTime = int(endTime)
+        threadPrint(tID, f"Time Elapsed: {int_curTime-int_startTime}s / {int_endTime-int_startTime}s")
+
+        if curTime > endTime:
+            threadPrint(tID, "Exited. Iterations:"+str(loops))
+            break
+        else:
+            queries_ran[tID] = queries_ran[tID] + 1
+            threadPrint(tID, "query counted. Current amount:"+str(queries_ran[tID]))
+
+def runQueryMongoDB(tID, startTime, endTime):
+    global queries_ran
+    #global debugInfo
+    debugInfo.append(["Thread:", tID])
+    loops = 0
+    queries_ran[tID] = 0
+
+
+    while True:
+        
+        dibi = connectToDatabase("MongoDB")
+
+        query = """
+            SELECT o.order_id, c.name AS customer_name, p.name AS product_name, oi.quantity, pay.amount
+           FROM orders o
+           JOIN customers c ON o.customer_id = c.customer_id
+           JOIN order_items oi ON o.order_id = oi.order_id
+           JOIN products p ON oi.product_id = p.product_id
+           JOIN payments pay ON o.order_id = pay.order_id
+           ORDER BY RAND()
            LIMIT 10
         """
 
