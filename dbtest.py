@@ -146,6 +146,7 @@ def runQueryMongoDB(tID, startTime, endTime):
         
         dibi = connectToDatabase("MongoDB")
 
+        
         query = """
             SELECT o.order_id, c.name AS customer_name, p.name AS product_name, oi.quantity, pay.amount
            FROM orders o
