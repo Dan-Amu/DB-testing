@@ -46,6 +46,12 @@ def runQueryMySQL(tID, startTime, endTime):
     queries_ran[tID] = 0
 
 
+    dibi = connectToDatabase("MySQL")
+    dbcursor = dibi.cursor()
+    query = "select MAX(order_id) from orders"
+    dbcursor.execute(query)
+    maxid = dbcursor.fetchone()
+    dibi.close()
     while True:
         
         dibi = connectToDatabase("MySQL")
@@ -56,21 +62,22 @@ def runQueryMySQL(tID, startTime, endTime):
        # query = f"select * from tpcc.customer where c_id between {start} and {start+20};"
 
        #query = f"select * from tpcc.customer where c_id like {start};"
-
+        random_id = randint(0, int(maxid[0]))
+        
        # Perform SELECT with JOINs
-        query = """
+        query = f"""
             SELECT o.order_id, c.name AS customer_name, p.name AS product_name, oi.quantity, pay.amount
            FROM orders o
            JOIN customers c ON o.customer_id = c.customer_id
            JOIN order_items oi ON o.order_id = oi.order_id
            JOIN products p ON oi.product_id = p.product_id
            JOIN payments pay ON o.order_id = pay.order_id
-           ORDER BY RAND()
+           WHERE o.order_id = { random_id }
            LIMIT 10
         """
-
         dbcursor.execute(query)
-
+        response = dbcursor.fetchall()
+        print(response)
         loops = loops+1
         dibi.close()
         curTime = time.time()
@@ -191,7 +198,7 @@ except:
     threadcount = 20
 try:
     if sys.argv[3]: 
-        runTime = int(sys.argv[2])
+        runTime = int(sys.argv[3])
 except:
     runTime = 5
 
@@ -231,17 +238,17 @@ for n in queries_ran:
 #print(debugInfo)
 print("\n\n")
 print(queries_ran)
-runtimeMinutes = round(runTime/60, 1)
+runtimeMinutes = runTime/60
 
 # Write test results to file including date and time of test run
 current_time = time.localtime()
 # Format it as a date string
 now = time.strftime("%Y-%m-%d %H:%M:%S", current_time)
 resultsFile = open("./testresults.txt", "a")
-resultsFile.write("Test run at: "+now)
-resultsFile.write("Parameters:\n Test duration: "+str(runtimeMinutes)+" minutes\n"+"Thread count: "+str(threadcount))
+resultsFile.write("\nTest run at: "+now)
+resultsFile.write("\nParameters:\nTest Type: "+dbType+"\nTest duration: "+str(runtimeMinutes)+" minutes\n"+"Thread count: "+str(threadcount-1))
 resultsFile.write(f"\nTotal queries finished in {runtimeMinutes} minutes: "+str(total))
-resultsFile.write(str(total/runtimeMinutes)+" Queries per minute.")
+resultsFile.write("\n"+str(total/runtimeMinutes)+" Queries per minute.\n\n")
 resultsFile.close()
 
 print(f"Total queries finished in {runtimeMinutes} minutes:", total)
